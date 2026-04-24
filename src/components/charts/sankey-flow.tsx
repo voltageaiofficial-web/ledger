@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useDimensions } from "@/lib/hooks/use-dimensions";
 
+// Consolidated to 7 categories so every node is large enough to label
 const LINKS = [
   { label: "Saved", value: 3545, color: "#10b981" },
   { label: "Housing", value: 1650, color: "#f472b6" },
@@ -10,20 +11,18 @@ const LINKS = [
   { label: "Groceries", value: 345, color: "#22c55e" },
   { label: "Transport", value: 245, color: "#60a5fa" },
   { label: "Utilities", value: 230, color: "#14b8a6" },
-  { label: "Shopping", value: 195, color: "#84cc16" },
-  { label: "Entertainment", value: 142, color: "#ec4899" },
-  { label: "Subscriptions", value: 108, color: "#a78bfa" },
-  { label: "Other", value: 120, color: "#6b7280" },
+  { label: "Other", value: 565, color: "#6b7280" },
 ] as const;
 
 const TOTAL = LINKS.reduce((s, l) => s + l.value, 0);
 const NODE_W = 10;
-const NODE_GAP = 5;
+const NODE_GAP = 6;
 const SVG_H = 370;
 const MT = 20;
 const MB = 20;
 const ML = 72;
-const MR = 128;
+const MR = 132;
+const MIN_H = 30; // guarantees every node fits two lines of text
 
 function fmt(v: number) {
   return v >= 1000 ? `$${(v / 1000).toFixed(1)}k` : `$${v}`;
@@ -38,6 +37,8 @@ export function SankeyFlow() {
     const innerH = SVG_H - MT - MB;
     const totalGaps = (LINKS.length - 1) * NODE_GAP;
     const availH = innerH - totalGaps;
+    const floor = LINKS.length * MIN_H;
+    const remaining = availH - floor;
 
     const srcX = ML;
     const tgtX = width - MR - NODE_W;
@@ -45,7 +46,7 @@ export function SankeyFlow() {
 
     let curY = MT;
     const nodes = LINKS.map((link) => {
-      const h = Math.max(8, (link.value / TOTAL) * availH);
+      const h = MIN_H + (link.value / TOTAL) * remaining;
       const node = { ...link, x: tgtX, y: curY, h };
       curY += h + NODE_GAP;
       return node;
@@ -128,7 +129,16 @@ export function SankeyFlow() {
             />
             <text
               x={layout.srcX - 8}
-              y={layout.srcY + layout.srcH / 2 - 10}
+              y={layout.srcY + layout.srcH / 2 - 18}
+              textAnchor="end"
+              fill="var(--color-text-dim)"
+              style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: "0.08em" }}
+            >
+              Income
+            </text>
+            <text
+              x={layout.srcX - 8}
+              y={layout.srcY + layout.srcH / 2 - 4}
               textAnchor="end"
               fill="var(--color-text)"
               style={{ fontSize: 13, fontWeight: 600, fontFamily: "var(--font-mono, monospace)" }}
@@ -137,7 +147,7 @@ export function SankeyFlow() {
             </text>
             <text
               x={layout.srcX - 8}
-              y={layout.srcY + layout.srcH / 2 + 6}
+              y={layout.srcY + layout.srcH / 2 + 12}
               textAnchor="end"
               fill="var(--color-text-dim)"
               style={{ fontSize: 10 }}
@@ -145,11 +155,10 @@ export function SankeyFlow() {
               per month
             </text>
 
-            {/* Target nodes + labels */}
+            {/* Target nodes — all show label + value */}
             {layout.nodes.map((n) => {
               const active = hovered === n.label;
               const mid = n.y + n.h / 2;
-              const showValue = n.h >= 18;
               return (
                 <g
                   key={n.label}
@@ -169,24 +178,22 @@ export function SankeyFlow() {
                   />
                   <text
                     x={n.x + NODE_W + 8}
-                    y={showValue ? mid - 6 : mid}
+                    y={mid - 7}
                     dy="0.32em"
                     fill={hovered && !active ? "var(--color-text-dim)" : "var(--color-text-muted)"}
                     style={{ fontSize: 11, transition: "fill 120ms" }}
                   >
                     {n.label}
                   </text>
-                  {showValue && (
-                    <text
-                      x={n.x + NODE_W + 8}
-                      y={mid + 8}
-                      dy="0.32em"
-                      fill="var(--color-text-dim)"
-                      style={{ fontSize: 10, fontFamily: "var(--font-mono, monospace)" }}
-                    >
-                      {fmt(n.value)}
-                    </text>
-                  )}
+                  <text
+                    x={n.x + NODE_W + 8}
+                    y={mid + 7}
+                    dy="0.32em"
+                    fill={hovered && !active ? "rgba(255,255,255,0.18)" : "var(--color-text-dim)"}
+                    style={{ fontSize: 10, fontFamily: "var(--font-mono, monospace)", transition: "fill 120ms" }}
+                  >
+                    {fmt(n.value)}
+                  </text>
                 </g>
               );
             })}
