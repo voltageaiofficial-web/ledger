@@ -1,26 +1,160 @@
 @import "tailwindcss";
 
+@theme {
+  --color-bg: #0b0d12;
+  --color-bg-elevated: #121520;
+  --color-surface: #161a26;
+  --color-surface-raised: #1d2130;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.14);
+  --color-text: #f5f7fa;
+  --color-text-muted: #9aa3b2;
+  --color-text-dim: #6b7387;
+
+  --color-accent: #7c5cff;
+  --color-accent-soft: rgba(124, 92, 255, 0.15);
+  --color-accent-strong: #9a7fff;
+
+  --color-positive: #10b981;
+  --color-positive-soft: rgba(16, 185, 129, 0.15);
+  --color-negative: #ef4444;
+  --color-negative-soft: rgba(239, 68, 68, 0.15);
+  --color-warning: #f59e0b;
+
+  --color-series-1: #7c5cff;
+  --color-series-2: #2dd4bf;
+  --color-series-3: #f59e0b;
+  --color-series-4: #ec4899;
+  --color-series-5: #60a5fa;
+  --color-series-6: #a78bfa;
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
+    Monaco, Consolas, monospace;
+
+  --radius-card: 14px;
+  --radius-pill: 9999px;
+
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 20px 40px -24px rgba(0, 0, 0, 0.6);
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv11";
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-image:
+    radial-gradient(
+      1200px 600px at 20% -10%,
+      rgba(124, 92, 255, 0.08),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 500px at 90% 10%,
+      rgba(45, 212, 191, 0.06),
+      transparent 60%
+    );
+  background-attachment: fixed;
+}
+
+::selection {
+  background: rgba(124, 92, 255, 0.32);
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.font-numeric {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.glass {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04),
+    rgba(255, 255, 255, 0.01)
+  );
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+}
+
+.card-base {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+}
+
+.hairline {
+  border: 1px solid var(--color-border);
+}
+
+.scrollbar-slim::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scrollbar-slim::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-slim::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+}
+.scrollbar-slim::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+dialog::backdrop {
+  background: rgba(5, 6, 10, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+/* Recharts: default inactive-bar is black on our dark surface — let child path fills show */
+.recharts-bar-rectangle .recharts-inactive-bar {
+  fill: none !important;
+}
+.recharts-bar-rectangle .recharts-inactive-bar path {
+  fill-opacity: 1;
+}
+/* Keep recharts legend text readable on dark */
+.recharts-legend-item-text {
+  color: var(--color-text-muted) !important;
 }
