@@ -10,9 +10,9 @@ A modern, dark-themed personal finance dashboard built as a portfolio project. N
 
 ## Why this exists
 
-I wanted a portfolio piece that wasn't a todo app. The brief was simple — show a hiring manager "this person has shipped real frontend." So I picked a problem space (personal finance) that forces interesting architectural decisions: currency conversion, time-series data, async state, forms with optimistic updates, custom data visualisation, and opinionated design.
+I got tired of portfolio projects that prove nothing. Todo apps, weather widgets, recipe finders — they all look the same and they all dodge the hard parts. Personal finance forces you to deal with real problems: multi-currency conversion, time-series data with market shocks, optimistic UI on CRUD flows, accessible charts that degrade gracefully. If you can ship this cleanly, you can ship most things.
 
-Every number on screen is mock data, but the architecture is production-shaped. Swapping the mock data service layer for a real API would be a one-file change per domain.
+The mock data is fake. The architecture isn't. Swapping the service layer for a real API is a one-file change per domain — that was a deliberate constraint from the start.
 
 ---
 
@@ -63,7 +63,7 @@ Recharts is fast to ship and looks professional. But a dashboard that composes l
 Every mock module in `lib/mock/` exports `async` functions with an artificial latency. That forces real loading states (skeleton screens everywhere), lets TanStack Query cache/invalidate correctly, and — importantly — means replacing mock data with a real API is one file per domain, not a refactor. The transaction CRUD flow uses proper optimistic updates via `onMutate` / `onError` / `onSettled`, not a write-then-refetch stub.
 
 **3. Dark-only, with restraint on glassmorphism.**
-The brief called for dark + glassmorphism. Research (Mercury, Copilot Money, Linear, Arc) consistently showed that the current fintech aesthetic uses glassmorphism on one or two elevated surfaces only — command palette, modals, a summary card — not every panel. I defaulted the whole app to a solid `#0B0D12` base with hairline borders, and reserved `backdrop-blur` for the command palette and dialogs. Electric violet (`#7C5CFF`) as the sole accent.
+I looked at Mercury, Copilot Money, Linear, and Arc before touching a colour token. The pattern was consistent — glassmorphism on one or two surfaces, solid everywhere else. Blur on every panel is a design tutorial, not a product. So the whole app sits on a solid `#0B0D12` base with hairline borders, and `backdrop-blur` is reserved for the command palette and dialogs only. One accent colour (`#7C5CFF`), no exceptions. I had to talk myself out of adding a teal secondary accent at least twice.
 
 ---
 
@@ -99,6 +99,7 @@ No real financial data is used. The RNG is seeded (`mulberry32`), so the dataset
 - **No real backend.** Adding an API would have turned a two-week portfolio piece into a one-month "personal finance SaaS." The mock service layer is designed so a real API could replace it per-domain without refactoring consumers.
 - **Transactions persist only for the session.** In-memory mock store resets on reload. This is the right tradeoff for a demo — no backend required, optimistic update flow is still fully exercised.
 - **E2E tests deferred.** Unit tests cover the pure calculation layer (where most real bugs live). A Playwright E2E would be the natural next addition.
+- **The D3 chart took way longer than expected.** The bisector hover logic and the `strokeDasharray` animation interacting with `getTotalLength()` on mount burned most of a day. Worth it — it's the best part of the project — but I wouldn't call it a quick win.
 
 ---
 
@@ -131,4 +132,4 @@ The UI primitives in `components/ui/` are hand-written Radix wrappers, not gener
 
 ---
 
-_Built in 2026 · Dark theme because the terminal was right · All data is mock._
+_Built in 2026 · All data is mock · The D3 chart is real and it took forever_
