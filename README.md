@@ -2,7 +2,7 @@
 
 A modern, dark-themed personal finance dashboard built as a portfolio project. Net worth, multi-currency accounts, investment holdings, spending analytics, and savings-rate tracking — all wired together with realistic seeded mock data and production-grade architecture.
 
-> **Live demo:** _`<deploy URL here>`_ · **Code:** this repo
+> **Live demo:** [ledger-sepia-eight.vercel.app](https://ledger-sepia-eight.vercel.app/overview) · **Code:** [voltageaiofficial-web/ledger](https://github.com/voltageaiofficial-web/ledger)
 
 ![Overview](.github/screenshots/overview.png)
 
