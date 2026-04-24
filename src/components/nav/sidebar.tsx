@@ -90,7 +90,7 @@ export function Sidebar({ onCommand }: { onCommand: () => void }) {
 
       <div className="mt-auto border-t border-[var(--color-border)] pt-4">
         <p className="px-2 text-[11px] text-[var(--color-text-dim)]">
-          Alex Rivera · Austin, TX
+          Matthew Carrion · Melbourne, AU
         </p>
       </div>
     </aside>
