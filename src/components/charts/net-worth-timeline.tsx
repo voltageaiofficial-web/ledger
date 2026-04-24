@@ -37,12 +37,29 @@ export function NetWorthTimeline({
     return data.filter((d) => new Date(d.date) >= start);
   }, [data, range]);
 
+  const projectionData = useMemo(() => {
+    if (range !== "1Y" || !data?.length) return [];
+    const recent = data.slice(-90);
+    if (recent.length < 2) return [];
+    const avgDailyGain = (recent[recent.length - 1].value - recent[0].value) / (recent.length - 1);
+    const last = data[data.length - 1];
+    const lastDate = new Date(last.date);
+    const pts: Array<{ date: string; value: number }> = [{ date: last.date, value: last.value }];
+    for (let i = 7; i <= 182; i += 7) {
+      const d = new Date(lastDate);
+      d.setDate(d.getDate() + i);
+      pts.push({ date: d.toISOString().slice(0, 10), value: Math.round(last.value + avgDailyGain * i) });
+    }
+    return pts;
+  }, [data, range]);
+
   const scales = useMemo(() => {
     if (!filtered.length || width === 0) return null;
-    const xDomain = d3.extent(filtered, (d) => new Date(d.date)) as [Date, Date];
-    const values = filtered.map((d) => d.value);
-    const yMin = Math.min(...values);
-    const yMax = Math.max(...values);
+    const allDates = [...filtered.map((d) => new Date(d.date)), ...projectionData.map((d) => new Date(d.date))];
+    const allValues = [...filtered.map((d) => d.value), ...projectionData.map((d) => d.value)];
+    const xDomain = d3.extent(allDates) as [Date, Date];
+    const yMin = Math.min(...allValues);
+    const yMax = Math.max(...allValues);
     const pad = (yMax - yMin) * 0.18 || yMax * 0.05;
     const x = d3
       .scaleTime()
@@ -54,7 +71,7 @@ export function NetWorthTimeline({
       .range([height - MARGIN.bottom, MARGIN.top])
       .nice();
     return { x, y };
-  }, [filtered, width]);
+  }, [filtered, projectionData, width]);
 
   const linePath = useMemo(() => {
     if (!scales || !filtered.length) return "";
@@ -76,6 +93,16 @@ export function NetWorthTimeline({
       .curve(d3.curveMonotoneX);
     return area(filtered) ?? "";
   }, [filtered, scales]);
+
+  const projectionPath = useMemo(() => {
+    if (!scales || projectionData.length < 2) return "";
+    const line = d3
+      .line<{ date: string; value: number }>()
+      .x((d) => scales.x(new Date(d.date)))
+      .y((d) => scales.y(d.value))
+      .curve(d3.curveMonotoneX);
+    return line(projectionData) ?? "";
+  }, [projectionData, scales]);
 
   const pathRef = useRef<SVGPathElement | null>(null);
   useEffect(() => {
@@ -244,6 +271,17 @@ export function NetWorthTimeline({
               strokeWidth={2}
               strokeLinecap="round"
             />
+            {projectionPath && (
+              <path
+                d={projectionPath}
+                fill="none"
+                stroke="#9A7FFF"
+                strokeWidth={1.5}
+                strokeDasharray="5 4"
+                strokeOpacity={0.38}
+                strokeLinecap="round"
+              />
+            )}
 
             {hover && (
               <g>
@@ -277,6 +315,15 @@ export function NetWorthTimeline({
               aria-hidden
             />
           </svg>
+        )}
+
+        {range === "1Y" && projectionData.length > 0 && (
+          <div className="mt-2 flex items-center gap-1.5 text-[10px] text-[var(--color-text-dim)]">
+            <svg width={18} height={8} aria-hidden>
+              <line x1={0} y1={4} x2={18} y2={4} stroke="#9A7FFF" strokeWidth={1.5} strokeDasharray="4 3" strokeOpacity={0.55} />
+            </svg>
+            6-month projection based on 90-day trend
+          </div>
         )}
 
         {hover && scales && (

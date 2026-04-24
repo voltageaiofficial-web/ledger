@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useMonthlySummary } from "@/lib/hooks/use-overview-data";
 import { IncomeExpenseBars } from "@/components/charts/income-expense-bars";
 import { SavingsRateTrend } from "@/components/charts/savings-rate-trend";
+import { SankeyFlow } from "@/components/charts/sankey-flow";
 import { KpiCard } from "@/components/kpi/kpi-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/lib/calc/fx";
@@ -85,6 +86,8 @@ export default function IncomePage() {
           }
         />
       </section>
+
+      <SankeyFlow />
 
       <IncomeExpenseBars data={summary} />
 
